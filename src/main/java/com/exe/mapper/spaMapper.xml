@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-/mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="spamapper">
+
+<insert id="insertSpa" parameterType="com.exe.dto.SpaDTO">
+	insert into spa (spaIndex,spaType,time,price,content,savefileName) values (#{spaIndex},#{spaType},#{time},#{price},#{content},#{savefileName})
+</insert>
+
+
+<select id="maxNum" resultType="int">
+	select nvl(max(spaIndex),0) from spa
+</select>
+
+<select id="getSpaCount" parameterType="map" resultType="int">
+	select nvl(count(*),0) from spa
+</select>
+
+
+<select id="getSpaLists" resultType="com.exe.dto.SpaDTO">
+	select spaIndex,spaType,time,price,content,savefileName from spa
+</select>
+
+<select id="getReadSpaData"  resultType="com.exe.dto.SpaDTO">
+	select spaIndex,spaType,time,price,content,savefileName from spa where spaIndex=#{spaIndex}
+</select>
+
+<update id="updateSpaData" parameterType="com.exe.dto.SpaDTO">
+	update spa set spaType=#{spaType},time=#{time},price=#{price},content=#{content},savefileName=#{savefileName}
+	where spaIndex=#{spaIndex}
+</update>
+
+<delete id="deleteSpaData" parameterType="int">
+	delete spa where spaIndex=#{spaIndex}
+</delete>
+
+	
+<!-- spaBooking -->
+<select id="bookingMaxNum" resultType="int">
+ 	select nvl(max(spaBookingNum),0) from spaBooking
+</select>
+	
+<insert id="insertBooking" parameterType="com.exe.dto.SpaDTO">
+	insert into spaBooking (spaBookingNum,spaType,spaDate,time,adult,phone,email,spaUserId,spaUserName,spaUserRequest,savefileName,spaBookingDate)
+	values (#{spaBookingNum},#{spaType},#{spaDate},#{time},#{adult},#{phone},#{email},#{spaUserId},#{spaUserName},#{spaUserRequest},#{savefileName},sysdate)
+</insert>
+
+<select id="getSpaBookingLists" resultType="com.exe.dto.SpaDTO">
+	select spaBookingNum,spaType,spaDate,time,adult,phone,email,spaUserId,spaUserName,spaUserRequest,savefileName,spaBookingDate from spaBooking
+	where spaUserId=#{spaUserId}
+</select>
+
+<delete id="deletespaBookingData" parameterType="int">
+	delete spaBooking where spaBookingNum=#{spaBookingNum} 
+</delete>
+
+<select id="readspaBookingData" parameterType="hashMap" resultType="com.exe.dto.SpaDTO">
+	select spaBookingNum,spaType,spaDate,time,adult,phone,email,spaUserId,spaUserName,spaUserRequest,spaBookingDate from spaBooking 
+	where spaUserId=#{spaUserId} 
+</select>
+
+<select id="readSaveFileName" resultType="String">
+	select savefileName from spa where spaType=#{spaType}
+
+</select>
+
+<select id="readPrice" resultType="com.exe.dto.SpaDTO">
+	select a.price from spa a inner join spaBooking b 
+	on a.spaType=b.spaType
+</select>
+
+</mapper>

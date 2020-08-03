@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-/mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="resmapper">
+
+
+<!-- 디테일페이지에 내용띄우기   -->
+<select id="getReadResDetail" parameterType="String" resultType="com.exe.dto.RestaurantDTO">
+	select * from restaurant
+	<![CDATA[
+	where resName=#{resName}
+	]]>
+</select>
+
+
+<!-- 예약인서트 -->
+<insert id="insertResBookingg" parameterType="com.exe.dto.RestaurantBookingDTO">
+	insert into resBooking(resName,checkin,time,adult,children,name,phone,email,comments,resBookNo,userId)
+	values(#{resName},#{checkin},#{time},#{adult},#{children},#{name},#{phone},#{email},#{comments},#{resBookNo},#{userId})
+</insert>
+
+
+<!-- 예약 셀렉-예약후 바로보여주는거(예약번호로) -->
+<select id="getReadResBooking" parameterType="int" resultType="com.exe.dto.RestaurantBookingDTO">
+	select resName,to_char(checkin,'YYYY-MM-DD') checkin,time,adult,children,name,phone,email,comments,resBookNo
+	from resBooking where resBookNo=#{resBookNo}
+</select>
+
+
+<!-- 마이페이지에서 레스토랑 예약확인 -->
+<select id="getMyResBooking" parameterType="String" resultType="com.exe.dto.RestaurantBookingDTO">
+	select resName, to_char(checkin,'YYYY-MM-DD') checkin,time,adult,children,comments,resBookNo,name,phone,email
+	from resBooking
+	where userId=#{userId}
+</select>
+
+<!-- 예약 취소 -->
+<delete id="resDelete" parameterType="int">
+	delete resBooking where resBookNo=#{resBookNo}
+</delete>
+
+<!-- 예약 확인(비회원인 경우)-->
+<select id="getCheckResBooking" parameterType="map" resultType="com.exe.dto.RestaurantBookingDTO">
+	select resName,to_char(checkin,'YYYY-MM-DD') checkin,time,adult,children,name,phone,email,comments,resBookNo
+	from resBooking where resBookNo=#{resBookNo} and phone=#{phone}
+</select>
+
+
+
+
+
+</mapper>

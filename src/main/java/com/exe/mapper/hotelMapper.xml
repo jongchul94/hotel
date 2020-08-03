@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-/mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hotelmapper">
+
+<!-- 회원정보입력 -->
+<insert id="insertUser" parameterType="com.exe.dto.HotelUserDTO">
+	insert into hotelUser (userId, userName, userPwd, email, birth, tel, addr)
+	values (#{userId}, #{userName}, #{userPwd}, #{email}, #{birth}, #{tel}, #{addr})
+</insert>
+
+<!-- UserId로 검색 -->
+<select id="getReadUserData" parameterType="String" resultType="com.exe.dto.HotelUserDTO">
+	select userId, userName, userPwd, email, to_char(birth,'yyyy-mm-dd') birth, tel, addr from hotelUser
+	where userId=#{userId}
+</select>
+
+
+<!-- 회원정보수정 -->
+<update id="updateUserData" parameterType="com.exe.dto.HotelUserDTO">
+	update hotelUser set
+	userName=#{userName}, userPwd=#{userPwd}, email=#{email}, birth=#{birth}, tel=#{tel}, addr=#{addr}
+	where userId=#{userId}
+</update>
+
+
+<!-- gallery -->	
+<select id="galleryGetMaxNum" resultType="int">
+	select nvl(max(galleryIndex),0) from gallery
+</select>
+
+<select id="galleryGetList" resultType="com.exe.dto.GalleryDTO">
+	select galleryIndex, galleryName, content, imageName from gallery
+</select>
+
+<insert id="insertGallery" parameterType="com.exe.dto.GalleryDTO">
+	insert into gallery (galleryIndex, galleryName, content, imageName)
+	values (#{galleryIndex}, #{galleryName}, #{content}, #{imageName})
+</insert>
+
+
+<!-- review  -->
+<select id="reviewMaxNum" resultType="int">
+	select nvl(max(reviewNum),0) from review
+</select>
+	
+<select id="countReview" resultType="int" parameterType="int">
+	select nvl(count(*),0) from review
+	where roomIndex=#{roomIndex}
+</select>
+	
+<insert id="insertReview" parameterType="com.exe.dto.ReviewDTO">
+	insert into review (reviewNum,name,email,content,created,roomIndex,userId)
+	values (#{reviewNum},#{name},#{email},#{content},sysdate,#{roomIndex},#{userId})
+</insert>
+	
+<select id="getReviewList" parameterType="int" resultType="com.exe.dto.ReviewDTO">
+	select * from review where roomIndex=#{roomIndex} 
+</select>
+
+<delete id="deleteReviewData" parameterType="int">
+	delete review where reviewNum=#{reviewNum}
+</delete>
+
+
+<!-- 예약관련 sql -->
+<select id="getReadBookingOut"  parameterType="map"
+resultType="com.exe.dto.HotelBookingDTO" >
+<![CDATA[
+select roomIndex from room where roomIndex not in(
+select roomIndex from hotelBooking
+where checkout > (select to_date(#{checkin},'mm/dd/yyyy') from dual)
+and checkin < (select to_date(#{checkout},'mm/dd/yyyy') from dual))
+	]]>
+</select>
+
+<select id="getRoomLists"  parameterType="int" resultType="com.exe.dto.RoomDTO" >
+select * from room where roomIndex = #{roomIndex[i]}
+</select>
+
+<select id="getReadRoomData" parameterType="int" resultType="com.exe.dto.RoomDTO">
+	select *
+	from room
+	where roomIndex=#{roomIndex}
+</select>
+
+
+<!-- 예약완료관련 sql -->
+<select id="maxHotelNum" resultType="int">
+	select nvl(max(bookingId),0) from hotelBooking
+</select>
+
+<insert id="insertBookingData" parameterType="com.exe.dto.HotelBookingDTO">	
+insert into hotelBooking(bookingId,userId,roomIndex,checkin,checkout,
+adult,children,options,bookingMessage,price) values(#{bookingId},#{userId},#{roomIndex},#{checkin},
+#{checkout},#{adult},#{children},#{options},#{bookingMessage},#{price})	
+</insert>
+
+<select id="intervalDay2"  parameterType="map" resultType="int">
+SELECT trunc(to_date(#{checkout},'yyyy/mm/dd')) 
+- trunc(to_date(#{checkin},'yyyy/mm/dd')) FROM dual
+</select>
+
+
+
+<!-- 마이페이지 예약정보 가져오기 -->
+<select id="getReadBookingData" parameterType="String" resultType="com.exe.dto.HotelBookingDTO">
+	select bookingId,userId,roomIndex,to_char(checkin,'yyyy-mm-dd') checkin,
+	to_char(checkout,'yyyy-mm-dd') checkout,adult,children,
+	options,bookingMessage,price
+	from hotelBooking
+	where userId = #{userId}
+</select>
+
+
+<!-- 예약 취소 -->
+<delete id="deleteData" parameterType="int">
+	delete hotelBooking where bookingId=#{bookingId}
+</delete>
+
+
+
+<!-- admin 페이지 -->
+<select id="getUserListData" resultType="com.exe.dto.HotelUserDTO">
+	select userId, userName, userPwd, email, birth, tel, addr from hotelUser 
+<![CDATA[
+	where userId<>'admin'
+]]>
+</select>
+
+<delete id="deleteUserData" parameterType="String">
+	delete from hotelUser where userId=#{userId}
+</delete>
+
+<select id="getReadBookingList" resultType="com.exe.dto.HotelBookingDTO" parameterType="int">
+	select bookingId,userId,roomIndex,to_char(checkin,'yy-mm-dd') checkin,to_char(checkout,'yy-mm-dd') checkout,adult,children,options,bookingMessage
+	from hotelBooking
+	where roomIndex=#{roomIndex}
+</select>
+
+<delete id="deleteBookingData" parameterType="int">
+	delete from hotelBooking where bookingId=#{bookingId}
+</delete>
+
+<!--회원가입 -아이디-중복확인 -->
+<select id="idDupCheck" parameterType="String" resultType="int">
+	select nvl(count(*),0) from hotelUser
+	where userId=#{userId}
+</select>
+
+</mapper>

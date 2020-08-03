@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-/mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="lessonmapper">
+
+	<select id="lessonMaxNum" resultType="int">
+		select nvl(max(lessonIndex),0) from lesson
+	</select>
+	
+	<select id="getLessonCount" resultType="int">
+		select nvl(count(*),0) from lesson
+	</select>
+	
+	<select id="getLessonList" resultType="com.exe.dto.LessonDTO">
+		select lessonIndex,image,title,trainer,time,addr,content from lesson
+	</select>
+	
+	<select id="getLessonUserList" resultType="com.exe.dto.LessonUserDTO" parameterType="String">
+		select lessonUserIndex,lessonUserId,lessonUserName,lessonUserEmail,lessonUserDay,className
+		from lessonUser where lessonUserId=#{lessonUserId}  
+	</select>
+	
+	<select id="getLessonUserCount" resultType="int" parameterType="String">
+		select nvl(count(*),0) from lessonUser
+		where className=#{className}
+	</select>
+	
+	<delete id="deleteLessonUser" parameterType="int">
+		delete from lessonUser where lessonUserIndex=#{lessonUserIndex}
+	</delete>
+	
+	<select id="getAdminUserList" resultType="com.exe.dto.LessonUserDTO">
+		select lessonUserIndex,lessonUserId,lessonUserName,lessonUserEmail,lessonUserDay,className
+		from lessonUser where className=#{className}  
+	</select>
+	
+	<select id="lessonGetMaxNum" resultType="int">
+		select nvl(max(lessonUserIndex),0) from lessonUser
+	</select>
+	
+	<insert id="insertLessonUser"
+		parameterType="com.exe.dto.LessonUserDTO">
+		insert into lessonUser
+		(lessonUserIndex,lessonUserId,lessonUserName,lessonUserEmail,lessonUserDay,className)
+		values
+		(#{lessonUserIndex},#{lessonUserId},#{lessonUserName},#{lessonUserEmail},#{lessonUserDay},#{className})
+	</insert>
+	
+</mapper>
